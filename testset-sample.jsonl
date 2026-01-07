@@ -1,0 +1,1 @@
+{"token_count": 35, "text": "这段数据不是纯文本，而是一种“带长度前缀”（length-prefixed）的二进制 TLV（Tag-Length-Value）或类似结构。\n逐字节拆开就能看出规律"}
