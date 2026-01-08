@@ -113,7 +113,7 @@ func TestEstimator_Analyze(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := estimator.analyze(tt.text)
+			result := estimator.Analyze(tt.text)
 			if result != tt.expected {
 				t.Errorf("Analyze(%q) = %+v, want %+v", tt.text, result, tt.expected)
 			}
@@ -152,7 +152,7 @@ func BenchmarkEstimator_Analyze(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		estimator.analyze(text)
+		estimator.Analyze(text)
 	}
 }
 
@@ -420,7 +420,7 @@ func TestSamplingMode(t *testing.T) {
 		estimator := NewEstimator().WithSampling(10000, 1000)
 		shortText := "Hello world! 你好世界 123"
 
-		stats := estimator.analyze(shortText)
+		stats := estimator.Analyze(shortText)
 		// Should use full analysis since text is short
 		expectedStats := Stats{
 			EnglishLetters: 10,
@@ -444,7 +444,7 @@ func TestSamplingMode(t *testing.T) {
 			longText += "ab"
 		}
 
-		stats := estimator.analyze(longText)
+		stats := estimator.Analyze(longText)
 
 		// With sampling, we should get approximate results
 		// All characters are 'a' and 'b', so all should be EnglishLetters
@@ -681,7 +681,7 @@ func BenchmarkEstimator_TestDatasetAnalyze(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for _, tc := range testCases {
-			estimator.analyze(tc.Text)
+			estimator.Analyze(tc.Text)
 		}
 	}
 }

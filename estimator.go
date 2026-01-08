@@ -134,15 +134,15 @@ func (e *Estimator) WithSampling(threshold, sampleSize int) *Estimator {
 // Estimate returns the estimated token count for the given text.
 // This is the main method for quick token estimation.
 func (e *Estimator) Estimate(text string) int {
-	stats := e.analyze(text)
+	stats := e.Analyze(text)
 	return e.estimateFromStats(stats)
 }
 
-// analyze analyzes the text and returns detailed character statistics.
+// Analyze analyzes the text and returns detailed character statistics.
 // This is useful if you want to see the breakdown of character types.
 // If EnableSampling is true and text length exceeds SamplingThreshold,
 // it will use sampling mode for better performance.
-func (e *Estimator) analyze(text string) Stats {
+func (e *Estimator) Analyze(text string) Stats {
 	// Check if we should use sampling mode
 	textLen := len([]rune(text))
 	if e.EnableSampling && e.SamplingThreshold > 0 && e.SamplingSize > 0 && textLen > e.SamplingThreshold {
