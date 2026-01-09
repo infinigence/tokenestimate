@@ -348,7 +348,6 @@ func TestPresetSystem(t *testing.T) {
 			coefDigits:     0.8,
 			coefCJK:        0.6,
 			coefSpaces:     0.1,
-			coefOthers:     1.0,
 		}
 		RegisterPreset(customEstimator)
 
@@ -454,7 +453,7 @@ func TestSamplingMode(t *testing.T) {
 
 		// The total should be close to the text length (200)
 		total := stats.EnglishLetters + stats.EnglishSymbols + stats.Digits +
-			stats.CJKChars + stats.Spaces + stats.OtherChars
+			stats.CJKChars + stats.ArabicChars + stats.Spaces
 
 		if total < 180 || total > 220 {
 			t.Errorf("Expected total around 200, got %d", total)
@@ -500,7 +499,7 @@ func TestSamplingMode(t *testing.T) {
 }
 
 func TestEstimator_TestDataset_Sampling(t *testing.T) {
-	estimator := NewEstimator().WithSampling(1000, 500)
+	estimator := NewEstimator().WithSampling(1000, 1000)
 
 	// Find the test dataset file
 	file, err := os.Open(TestDatasetPath)
