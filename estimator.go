@@ -186,13 +186,13 @@ func (e *Estimator) analyzeFull(text string) Stats {
 			stats.JapaneseKana++
 		case isKoreanHangul(r):
 			stats.KoreanHangul++
-		case isCJK(r):
+		case isChinese(r):
 			stats.ChineseChars++
 		case isRussian(r):
 			stats.RussianChars++
 		case isArabic(r):
 			stats.ArabicChars++
-		case isEnglishSymbol(r):
+		case isSymbol(r):
 			stats.Symbols++
 		case unicode.IsSpace(r):
 			stats.Spaces++
@@ -241,13 +241,13 @@ func (e *Estimator) analyzeSampling(text string, textLen int) Stats {
 			sampledStats.JapaneseKana++
 		case isKoreanHangul(r):
 			sampledStats.KoreanHangul++
-		case isCJK(r):
+		case isChinese(r):
 			sampledStats.ChineseChars++
 		case isRussian(r):
 			sampledStats.RussianChars++
 		case isArabic(r):
 			sampledStats.ArabicChars++
-		case isEnglishSymbol(r):
+		case isSymbol(r):
 			sampledStats.Symbols++
 		case unicode.IsSpace(r):
 			sampledStats.Spaces++
@@ -329,8 +329,8 @@ func isKoreanHangul(r rune) bool {
 		(r >= 0xD7B0 && r <= 0xD7FF) // Hangul Jamo Extended-B
 }
 
-// isCJK checks if a rune is a CJK (Chinese) character,
-func isCJK(r rune) bool {
+// isChinese checks if a rune is a CJK (Chinese) character,
+func isChinese(r rune) bool {
 	return (r >= 0x4E00 && r <= 0x9FFF) || // CJK Unified Ideographs
 		(r >= 0x3400 && r <= 0x4DBF) || // CJK Extension A
 		(r >= 0x20000 && r <= 0x2A6DF) || // CJK Extension B
@@ -341,8 +341,8 @@ func isCJK(r rune) bool {
 		(r >= 0x30000 && r <= 0x3134F) // CJK Extension G
 }
 
-// isEnglishSymbol checks if a rune is an ASCII punctuation or symbol.
-func isEnglishSymbol(r rune) bool {
+// isSymbol checks if a rune is an ASCII punctuation or symbol.
+func isSymbol(r rune) bool {
 	return (r >= 0x21 && r <= 0x2F) || // !"#$%&'()*+,-./
 		(r >= 0x3A && r <= 0x40) || // :;<=>?@
 		(r >= 0x5B && r <= 0x60) || // [\]^_`
