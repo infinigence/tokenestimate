@@ -87,26 +87,26 @@ func TestEstimator_Analyze(t *testing.T) {
 			name: "English letters only",
 			text: "Hello",
 			expected: Stats{
-				EnglishLetters: 5,
+				LatinLetters: 5,
 			},
 		},
 		{
 			name: "Mixed characters",
 			text: "Hello, 世界! 123",
 			expected: Stats{
-				EnglishLetters: 5,
-				EnglishSymbols: 2, // , and !
-				CJKChars:       2,
-				Digits:         3,
-				Spaces:         2,
+				LatinLetters: 5,
+				Symbols:      2, // , and !
+				ChineseChars: 2,
+				Digits:       3,
+				Spaces:       2,
 			},
 		},
 		{
 			name: "Symbols and spaces",
 			text: "!@# $%^",
 			expected: Stats{
-				EnglishSymbols: 6,
-				Spaces:         1,
+				Symbols: 6,
+				Spaces:  1,
 			},
 		},
 	}
@@ -125,9 +125,9 @@ func TestEstimator_EstimateFromStats(t *testing.T) {
 	estimator := NewEstimator()
 
 	stats := Stats{
-		EnglishLetters: 10,
-		Spaces:         2,
-		EnglishSymbols: 1,
+		LatinLetters: 10,
+		Spaces:       2,
+		Symbols:      1,
 	}
 
 	result := estimator.estimateFromStats(stats)
@@ -340,14 +340,14 @@ func TestPresetSystem(t *testing.T) {
 
 	t.Run("RegisterPreset and retrieve", func(t *testing.T) {
 		customEstimator := &Estimator{
-			Name:           "custom-test",
-			Description:    "Custom test estimator",
-			intercept:      1.0,
-			coefEngSymbols: 0.5,
-			coefEngLetters: 0.3,
-			coefDigits:     0.8,
-			coefCJK:        0.6,
-			coefSpaces:     0.1,
+			Name:             "custom-test",
+			Description:      "Custom test estimator",
+			intercept:        1.0,
+			coefSymbols:      0.5,
+			coefLatinLetters: 0.3,
+			coefDigits:       0.8,
+			coefChinese:      0.6,
+			coefSpaces:       0.1,
 		}
 		RegisterPreset(customEstimator)
 
@@ -422,11 +422,11 @@ func TestSamplingMode(t *testing.T) {
 		stats := estimator.Analyze(shortText)
 		// Should use full analysis since text is short
 		expectedStats := Stats{
-			EnglishLetters: 10,
-			EnglishSymbols: 1,
-			Spaces:         3,
-			CJKChars:       4,
-			Digits:         3,
+			LatinLetters: 10,
+			Symbols:      1,
+			Spaces:       3,
+			ChineseChars: 4,
+			Digits:       3,
 		}
 
 		if stats != expectedStats {
@@ -446,14 +446,14 @@ func TestSamplingMode(t *testing.T) {
 		stats := estimator.Analyze(longText)
 
 		// With sampling, we should get approximate results
-		// All characters are 'a' and 'b', so all should be EnglishLetters
-		if stats.EnglishLetters == 0 {
-			t.Error("Expected some EnglishLetters in sampled stats")
+		// All characters are 'a' and 'b', so all should be LatinLetters
+		if stats.LatinLetters == 0 {
+			t.Error("Expected some LatinLetters in sampled stats")
 		}
 
 		// The total should be close to the text length (200)
-		total := stats.EnglishLetters + stats.EnglishSymbols + stats.Digits +
-			stats.CJKChars + stats.ArabicChars + stats.Spaces
+		total := stats.LatinLetters + stats.Symbols + stats.Digits +
+			stats.ChineseChars + stats.ArabicChars + stats.Spaces
 
 		if total < 180 || total > 220 {
 			t.Errorf("Expected total around 200, got %d", total)

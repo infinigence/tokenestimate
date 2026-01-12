@@ -11,19 +11,19 @@ import (
 // Estimator estimates token counts for text strings using a trained
 // linear regression model based on character classification.
 type Estimator struct {
-	Name           string  // Name of the preset (e.g., "kimi-k2")
-	Description    string  // Description of the preset
-	intercept      float64 // Regression coefficients
-	coefEngSymbols float64
-	coefEngLetters float64
-	coefLatinExt   float64
-	coefDigits     float64
-	coefCJK        float64
-	coefJapanese   float64
-	coefKorean     float64
-	coefRussian    float64
-	coefArabic     float64
-	coefSpaces     float64
+	Name             string  // Name of the preset (e.g., "kimi-k2")
+	Description      string  // Description of the preset
+	intercept        float64 // Regression coefficients
+	coefSymbols      float64
+	coefLatinLetters float64
+	coefLatinExt     float64
+	coefDigits       float64
+	coefChinese      float64
+	coefJapanese     float64
+	coefKorean       float64
+	coefRussian      float64
+	coefArabic       float64
+	coefSpaces       float64
 
 	// Sampling configuration
 	EnableSampling    bool // Enable sampling mode for long texts
@@ -36,19 +36,19 @@ var (
 	// KimiK2Estimator is an estimator trained on Kimi-K2 tokenizer data.
 	// Achieves ~8.5% average relative error.
 	KimiK2Estimator = &Estimator{
-		Name:           "kimi-k2",
-		Description:    "Kimi-K2 tokenizer preset (~8.5% avg error)",
-		intercept:      0.0,
-		coefEngSymbols: 0.5671194745036742,
-		coefEngLetters: 0.20601617930567592,
-		coefLatinExt:   5.87908499852652,
-		coefDigits:     0.8030572147361226,
-		coefCJK:        0.6627122076124944,
-		coefJapanese:   1.0879350533022305,
-		coefKorean:     1.0509515625240804,
-		coefRussian:    0.5306900990158002,
-		coefArabic:     0.6352704975749803,
-		coefSpaces:     0.02578661842488973,
+		Name:             "kimi-k2",
+		Description:      "Kimi-K2 tokenizer preset (~8.5% avg error)",
+		intercept:        0.0,
+		coefSymbols:      0.5671194745036742,
+		coefLatinLetters: 0.20601617930567592,
+		coefLatinExt:     5.87908499852652,
+		coefDigits:       0.8030572147361226,
+		coefChinese:      0.6627122076124944,
+		coefJapanese:     1.0879350533022305,
+		coefKorean:       1.0509515625240804,
+		coefRussian:      0.5306900990158002,
+		coefArabic:       0.6352704975749803,
+		coefSpaces:       0.02578661842488973,
 	}
 
 	// presets maps preset names to their estimator instances
@@ -59,16 +59,16 @@ var (
 
 // Stats contains detailed character statistics for a text string.
 type Stats struct {
-	EnglishSymbols int // Count of English punctuation and symbols
-	EnglishLetters int // Count of ASCII letters (a-z, A-Z)
-	LatinExtended  int // Count of Latin extended letters (à, ñ, ü, etc.)
-	Digits         int // Count of numeric digits (0-9)
-	CJKChars       int // Count of CJK (Chinese) characters
-	JapaneseKana   int // Count of Japanese Hiragana and Katakana
-	KoreanHangul   int // Count of Korean Hangul
-	RussianChars   int // Count of Russian Cyrillic letters
-	ArabicChars    int // Count of Arabic characters
-	Spaces         int // Count of whitespace characters
+	Symbols       int // Count of punctuation and symbols
+	LatinLetters  int // Count of ASCII Latin letters (a-z, A-Z)
+	LatinExtended int // Count of Latin extended letters (à, ñ, ü, etc.)
+	Digits        int // Count of numeric digits (0-9)
+	ChineseChars  int // Count of Chinese (CJK) characters
+	JapaneseKana  int // Count of Japanese Hiragana and Katakana
+	KoreanHangul  int // Count of Korean Hangul
+	RussianChars  int // Count of Russian Cyrillic letters
+	ArabicChars   int // Count of Arabic characters
+	Spaces        int // Count of whitespace characters
 }
 
 // NewEstimator creates a new token count estimator with pre-trained coefficients.
@@ -120,11 +120,11 @@ func (e *Estimator) Clone() *Estimator {
 		Name:              e.Name,
 		Description:       e.Description,
 		intercept:         e.intercept,
-		coefEngSymbols:    e.coefEngSymbols,
-		coefEngLetters:    e.coefEngLetters,
+		coefSymbols:       e.coefSymbols,
+		coefLatinLetters:  e.coefLatinLetters,
 		coefLatinExt:      e.coefLatinExt,
 		coefDigits:        e.coefDigits,
-		coefCJK:           e.coefCJK,
+		coefChinese:       e.coefChinese,
 		coefJapanese:      e.coefJapanese,
 		coefKorean:        e.coefKorean,
 		coefRussian:       e.coefRussian,
@@ -176,8 +176,8 @@ func (e *Estimator) analyzeFull(text string) Stats {
 	for _, r := range text {
 		switch {
 		case unicode.IsLetter(r) && r < 128:
-			// English letters (ASCII)
-			stats.EnglishLetters++
+			// Latin letters (ASCII)
+			stats.LatinLetters++
 		case isLatinExtended(r):
 			stats.LatinExtended++
 		case unicode.IsDigit(r):
@@ -187,24 +187,24 @@ func (e *Estimator) analyzeFull(text string) Stats {
 		case isKoreanHangul(r):
 			stats.KoreanHangul++
 		case isCJK(r):
-			stats.CJKChars++
+			stats.ChineseChars++
 		case isRussian(r):
 			stats.RussianChars++
 		case isArabic(r):
 			stats.ArabicChars++
 		case isEnglishSymbol(r):
-			stats.EnglishSymbols++
+			stats.Symbols++
 		case unicode.IsSpace(r):
 			stats.Spaces++
 		default:
-			// treat other chars as English symbols
-			stats.EnglishSymbols++
+			// treat other chars as symbols
+			stats.Symbols++
 		}
 	}
 
 	// prevent too many latin ext
-	if adj := (stats.LatinExtended - stats.EnglishLetters/15); adj > 0 {
-		stats.EnglishSymbols += adj
+	if adj := (stats.LatinExtended - stats.LatinLetters/15); adj > 0 {
+		stats.Symbols += adj
 		stats.LatinExtended -= adj
 	}
 
@@ -232,7 +232,7 @@ func (e *Estimator) analyzeSampling(text string, textLen int) Stats {
 
 		switch {
 		case unicode.IsLetter(r) && r < 128:
-			sampledStats.EnglishLetters++
+			sampledStats.LatinLetters++
 		case isLatinExtended(r):
 			sampledStats.LatinExtended++
 		case unicode.IsDigit(r):
@@ -242,17 +242,17 @@ func (e *Estimator) analyzeSampling(text string, textLen int) Stats {
 		case isKoreanHangul(r):
 			sampledStats.KoreanHangul++
 		case isCJK(r):
-			sampledStats.CJKChars++
+			sampledStats.ChineseChars++
 		case isRussian(r):
 			sampledStats.RussianChars++
 		case isArabic(r):
 			sampledStats.ArabicChars++
 		case isEnglishSymbol(r):
-			sampledStats.EnglishSymbols++
+			sampledStats.Symbols++
 		case unicode.IsSpace(r):
 			sampledStats.Spaces++
 		default:
-			sampledStats.EnglishSymbols++
+			sampledStats.Symbols++
 		}
 	}
 
@@ -260,21 +260,21 @@ func (e *Estimator) analyzeSampling(text string, textLen int) Stats {
 	scaleFactor := float64(textLen) / float64(sampleSize)
 
 	stats := Stats{
-		EnglishSymbols: int(float64(sampledStats.EnglishSymbols)*scaleFactor + 0.5),
-		EnglishLetters: int(float64(sampledStats.EnglishLetters)*scaleFactor + 0.5),
-		LatinExtended:  int(float64(sampledStats.LatinExtended)*scaleFactor + 0.5),
-		Digits:         int(float64(sampledStats.Digits)*scaleFactor + 0.5),
-		CJKChars:       int(float64(sampledStats.CJKChars)*scaleFactor + 0.5),
-		JapaneseKana:   int(float64(sampledStats.JapaneseKana)*scaleFactor + 0.5),
-		KoreanHangul:   int(float64(sampledStats.KoreanHangul)*scaleFactor + 0.5),
-		RussianChars:   int(float64(sampledStats.RussianChars)*scaleFactor + 0.5),
-		ArabicChars:    int(float64(sampledStats.ArabicChars)*scaleFactor + 0.5),
-		Spaces:         int(float64(sampledStats.Spaces)*scaleFactor + 0.5),
+		Symbols:       int(float64(sampledStats.Symbols)*scaleFactor + 0.5),
+		LatinLetters:  int(float64(sampledStats.LatinLetters)*scaleFactor + 0.5),
+		LatinExtended: int(float64(sampledStats.LatinExtended)*scaleFactor + 0.5),
+		Digits:        int(float64(sampledStats.Digits)*scaleFactor + 0.5),
+		ChineseChars:  int(float64(sampledStats.ChineseChars)*scaleFactor + 0.5),
+		JapaneseKana:  int(float64(sampledStats.JapaneseKana)*scaleFactor + 0.5),
+		KoreanHangul:  int(float64(sampledStats.KoreanHangul)*scaleFactor + 0.5),
+		RussianChars:  int(float64(sampledStats.RussianChars)*scaleFactor + 0.5),
+		ArabicChars:   int(float64(sampledStats.ArabicChars)*scaleFactor + 0.5),
+		Spaces:        int(float64(sampledStats.Spaces)*scaleFactor + 0.5),
 	}
 
 	// prevent too many latin ext
-	if adj := (stats.LatinExtended - stats.EnglishLetters/15); adj > 0 {
-		stats.EnglishSymbols += adj
+	if adj := (stats.LatinExtended - stats.LatinLetters/15); adj > 0 {
+		stats.Symbols += adj
 		stats.LatinExtended -= adj
 	}
 
@@ -294,11 +294,11 @@ func (e *Estimator) estimateFromStats(stats Stats) int {
 // calculateTokenCount applies the linear regression formula to compute token count.
 func (e *Estimator) calculateTokenCount(stats Stats) float64 {
 	return e.intercept +
-		e.coefEngSymbols*float64(stats.EnglishSymbols) +
-		e.coefEngLetters*float64(stats.EnglishLetters) +
+		e.coefSymbols*float64(stats.Symbols) +
+		e.coefLatinLetters*float64(stats.LatinLetters) +
 		e.coefLatinExt*float64(stats.LatinExtended) +
 		e.coefDigits*float64(stats.Digits) +
-		e.coefCJK*float64(stats.CJKChars) +
+		e.coefChinese*float64(stats.ChineseChars) +
 		e.coefJapanese*float64(stats.JapaneseKana) +
 		e.coefKorean*float64(stats.KoreanHangul) +
 		e.coefRussian*float64(stats.RussianChars) +
